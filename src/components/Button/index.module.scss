@@ -1,0 +1,21 @@
+.default {
+    background: var(--dark-blue);
+    color: #fff;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background: rgba(15, 76, 129, 0.8);
+    }
+}
+
+.outline {
+    background: transparent;
+    border: 2px solid var(--dark-blue);
+    color: var(--dark-blue);
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background: var(--dark-blue);
+        color: #fff;
+    }
+}

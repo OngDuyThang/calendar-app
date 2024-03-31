@@ -1,0 +1,19 @@
+.root {
+    display: flex;
+}
+
+.vertical {
+    flex-direction: column;
+}
+
+.horizontal {
+    flex-direction: row;
+}
+
+.center-horizontal {
+    align-items: center;
+}
+
+.wrap {
+    flex-wrap: wrap;
+}
