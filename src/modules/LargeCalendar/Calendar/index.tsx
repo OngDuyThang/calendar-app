@@ -27,11 +27,9 @@ const Calendar: FC<IProps> = ({
     useEffect(() => {
         (async () => {
             const data = await getCalendarById(calendarId(month, year))
-            if (data.data) {
-                setCalendar(data.data)
-            }
+            setCalendar(data.data)
         })()
-    }, [])
+    }, [month, year])
 
     const renderHead = (
         <tr>
@@ -98,7 +96,10 @@ const Calendar: FC<IProps> = ({
             width='400px'
             title='Create Appointment'
         >
-            <AppointmentForm {...{ dateId, calendarId: calendarId(month, year) }} />
+            <AppointmentForm {...{
+                dateId,
+                calendarId: calendarId(month, year)
+            }} />
         </Modal>
     )
 

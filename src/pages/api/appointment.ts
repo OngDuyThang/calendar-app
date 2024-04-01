@@ -4,6 +4,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { ApiResponseDto } from 'types/api'
 import { createAppointmentSchema } from 'utils/appointment'
 import { CODE, MESSAGE } from 'utils/constants'
+import { extractCalendarId } from 'utils/helpers'
 
 export default async function handler(
     req: NextApiRequest,
@@ -32,6 +33,12 @@ export default async function handler(
         await createDate(dateId)
         await createOrPatchCalendar(calendarId, dateId, title)
 
+        const belongCalendarId = extractCalendarId(dateId)
+        if (belongCalendarId !== calendarId) {
+            await createOrPatchCalendar(belongCalendarId, dateId, title)
+            console.log('ANOTHER CALENDAR')
+        }
+
         await prisma.appointment.create({
             data: {
                 title,
@@ -57,11 +64,11 @@ export default async function handler(
 }
 
 async function createDate(dateId: string): Promise<void> {
-    const date = await prisma.date.findFirst({ where: { id: dateId } })
-    console.log('date: ', date)
-    if (!date) {
+    try {
         await prisma.date.create({ data: { id: dateId } })
         console.log('create date')
+    } catch (e) {
+        console.log('date already exist, continue')
     }
 }
 
@@ -71,7 +78,6 @@ async function createOrPatchCalendar(
     title: string
 ): Promise<void> {
     const calendar = await prisma.calendar.findFirst({ where: { id: calendarId } })
-
     if (calendar) {
         calendar.dateIds.push(dateId)
         calendar.appointmentTitles.push(title)

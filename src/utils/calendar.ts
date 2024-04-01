@@ -2,10 +2,10 @@ import { dateId } from 'utils/helpers'
 import { TCalendarCell } from 'types/calendar'
 
 export const createCalendar = (month: number, year: number) => {
-    const firstDayNth = new Date(year, month).getDay() // Thứ tự xuất hiện của ngày 1
-    const lastDay = new Date(year, month + 1, 0).getDate() // Ngày cuối cùng của tháng đó
+    const firstDayNth = new Date(year, month).getDay() // The index of first day of that month on the calendar
+    const lastDay = new Date(year, month + 1, 0).getDate() // Last day of that month
 
-    // arr[i][j] có giá trị là 1 object chứa 2 key ngày và ghi chú
+    // arr[i][j] is an object Cell type, contain day, id == dateId to send to backend and inMonth to render UI text color
     let calendar = [], count = 0
     for (let row = 0; row < 6; row += 1) {
         let arr: TCalendarCell[] = []

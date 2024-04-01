@@ -6,43 +6,80 @@ import Card from './Card'
 import styles from './index.module.scss'
 import Calendar from './Calendar';
 import { TAppointment } from 'types/appointment';
+import { dateId } from 'utils/helpers';
 
 const today = new Date()
 const currentMonth = today.getMonth()
-const setCurrentYear = today.getFullYear()
+const currentYear = today.getFullYear()
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
-const SmallCalendar: FC = () => {
+interface IProps {
+    globalMonth: number;
+    globalYear: number
+}
+
+const SmallCalendar: FC<IProps> = ({
+    globalMonth,
+    globalYear
+}) => {
     const iconCss: CSSProperties = {
         cursor: 'pointer',
         color: COLOR.DARK_BLUE
     }
-    const [month, setMonth] = useState<number>(currentMonth)
-    const [year, setYear] = useState<number>(setCurrentYear)
+    const [day, setDay] = useState<number>(today.getDate())
+    const [month, setMonth] = useState<number>(globalMonth)
+    const [year, setYear] = useState<number>(globalYear)
     const [appointments, setAppointments] = useState<TAppointment[]>([])
+    const isToday = dateId(day, month, year) === dateId(today.getDate(), currentMonth, currentYear)
+
+    const resetDay = (month: number, year: number) => {
+        if (month == currentMonth && year == currentYear) {
+            setDay(today.getDate())
+        } else {
+            setDay(0)
+        }
+    }
+
+    useEffect(() => {
+        resetDay(globalMonth, globalYear)
+        setMonth(globalMonth)
+        setYear(globalYear)
+    }, [globalMonth, globalYear])
 
     const next = () => {
         setMonth(month => {
             if (month < 11) {
                 month += 1
+                resetDay(month, year)
             } else {
-                setYear(year + 1)
                 month = 0
+                setYear(year => {
+                    year += 1
+                    resetDay(month, year)
+                    return year
+                })
             }
             return month
         })
+        setAppointments([])
     }
 
     const prev = () => {
         setMonth(month => {
             if (month > 0) {
                 month -= 1
+                resetDay(month, year)
             } else {
-                setYear(year - 1)
                 month = 11
+                setYear(year => {
+                    year -= 1
+                    resetDay(month, year)
+                    return year
+                })
             }
             return month
         })
+        setAppointments([])
     }
 
     useEffect(() => console.log('month: ' + month, 'year: ' + year), [month, year])
@@ -65,10 +102,17 @@ const SmallCalendar: FC = () => {
             <Calendar {...{
                 month,
                 year,
+                day,
+                setDay: (value: number) => setDay(value),
                 setAppointments: (value: TAppointment[]) => setAppointments(value)
             }} />
         </Article>
     )
+
+    const renderAppointments = appointments.map((appointment, index) => {
+        const { title, time, clients } = appointment
+        return <Card {...{ title, time, clients }} key={index} />
+    })
 
     const Events = (
         <Section flex direct='column' gap='16px' className={styles.events}>
@@ -78,17 +122,14 @@ const SmallCalendar: FC = () => {
                         Upcoming Events
                     </Title>
                     <Text fontSize='1rem' fontWeight={500} color={COLOR.GREY_TEXT}>
-                        Today, 4 Apr
+                        {isToday && 'Today, '} {day ? `${day} ${months[month]}` : null}
                     </Text>
                 </Space>
                 <Button>
                     View All
                 </Button>
             </Div>
-
-            {appointments.map((appointment, index) => (
-                <Card />
-            ))}
+            {renderAppointments}
         </Section>
     )
 
