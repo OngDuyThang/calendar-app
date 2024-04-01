@@ -26,7 +26,6 @@ export default async function handler(
             statusCode: CODE.BAD_REQUEST
         })
     }
-    console.log('value: ', value)
 
     const { title, time, clients, dateId, calendarId } = value
     try {
@@ -36,7 +35,6 @@ export default async function handler(
         const belongCalendarId = extractCalendarId(dateId)
         if (belongCalendarId !== calendarId) {
             await createOrPatchCalendar(belongCalendarId, dateId, title)
-            console.log('ANOTHER CALENDAR')
         }
 
         await prisma.appointment.create({
@@ -47,7 +45,6 @@ export default async function handler(
                 dateId
             }
         })
-        console.log('create appointment')
 
         return res.status(CODE.WRITE_SUCCESS).json({
             data: null,
@@ -66,9 +63,8 @@ export default async function handler(
 async function createDate(dateId: string): Promise<void> {
     try {
         await prisma.date.create({ data: { id: dateId } })
-        console.log('create date')
     } catch (e) {
-        console.log('date already exist, continue')
+        console.log(e)
     }
 }
 
@@ -90,7 +86,6 @@ async function createOrPatchCalendar(
                 appointmentTitles: calendar.appointmentTitles
             }
         })
-        console.log('update calendar: ', calendar)
     } else {
         await prisma.calendar.create({
             data: {
@@ -99,6 +94,5 @@ async function createOrPatchCalendar(
                 appointmentTitles: [title]
             }
         })
-        console.log('create calendar')
     }
 }

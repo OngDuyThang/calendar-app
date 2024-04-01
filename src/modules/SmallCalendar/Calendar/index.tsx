@@ -4,39 +4,51 @@ import clsx from 'clsx'
 import { createCalendar } from 'utils/calendar';
 import { getDateById } from 'api/date';
 import { TAppointment } from 'types/appointment';
-import { dateId, getDayFromDateId } from 'utils/helpers';
-
-const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+import { generateDateId } from 'utils/helpers';
+import { currentMonth, currentYear, days, today } from 'utils/constants';
 
 interface IProps {
     month: number;
     year: number;
-    day: number;
-    setDay: (value: number) => void
+    setSelected: (value: string) => void;
     setAppointments: (value: TAppointment[]) => void
 }
 
 const Calendar: FC<IProps> = ({
     month,
     year,
-    day,
-    setDay,
+    setSelected,
     setAppointments
 }) => {
     const calendar = useMemo(() => createCalendar(month, year), [month, year])
+    const [dateId, setDateId] = useState<string>('')
 
     useEffect(() => {
-        if (day == new Date().getDate()) {
-            (async () => {
-                const data = await getDateById(dateId(day, month, year))
+        (async () => {
+            setDateId('')
+            setAppointments([])
+
+            if (month == currentMonth && year == currentYear) {
+                const dateId = generateDateId(today.getDate(), month, year)
+                setDateId(dateId)
+
+                const data = await getDateById(dateId)
                 const date = data.data
                 if (date) {
                     const appointments = date.appointments as TAppointment[]
                     setAppointments(appointments)
                 }
-            })()
+            }
+        })()
+    }, [month, year])
+
+    useEffect(() => {
+        if (dateId) {
+            setSelected(dateId)
+        } else {
+            setSelected('')
         }
-    }, [day])
+    }, [dateId])
 
     const renderHead = (
         <tr>
@@ -47,7 +59,7 @@ const Calendar: FC<IProps> = ({
     )
 
     const handleGetAppointments = async (dateId: string) => {
-        setDay(getDayFromDateId(dateId))
+        setDateId(dateId)
         setAppointments([])
 
         const data = await getDateById(dateId)
@@ -66,7 +78,7 @@ const Calendar: FC<IProps> = ({
                         className={clsx(
                             styles.day,
                             cell.inMonth && styles.inMonth,
-                            cell.id == dateId(day, month, year) && styles.focus
+                            cell.id == dateId && styles.focus
                         )}
                         data-dateid={cell.id}
                         onClick={() => handleGetAppointments(cell.id)}

@@ -4,20 +4,21 @@ import styles from './index.module.scss'
 import clsx from 'clsx';
 import { Modal } from 'components';
 import AppointmentForm from '../AppoinmentForm';
-import { calendarId } from 'utils/helpers';
+import { generateCalendarId } from 'utils/helpers';
 import { getCalendarById } from 'api/calendar';
 import { TCalendar } from 'types/calendar';
-
-const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+import { days } from 'utils/constants';
 
 interface IProps {
     month: number;
-    year: number
+    year: number;
+    selected: string;
 }
 
 const Calendar: FC<IProps> = ({
     month,
-    year
+    year,
+    selected
 }) => {
     const calendarRender = useMemo(() => createCalendar(month, year), [month, year])
     const [open, setOpen] = useState<boolean>(false)
@@ -26,7 +27,7 @@ const Calendar: FC<IProps> = ({
 
     useEffect(() => {
         (async () => {
-            const data = await getCalendarById(calendarId(month, year))
+            const data = await getCalendarById(generateCalendarId(month, year))
             setCalendar(data.data)
         })()
     }, [month, year])
@@ -79,6 +80,7 @@ const Calendar: FC<IProps> = ({
                         className={clsx(
                             styles.day,
                             cell.inMonth && styles.inMonth,
+                            cell.id == selected && styles.focus
                         )}
                     >
                         {cell.day}
@@ -98,7 +100,8 @@ const Calendar: FC<IProps> = ({
         >
             <AppointmentForm {...{
                 dateId,
-                calendarId: calendarId(month, year)
+                calendarId: generateCalendarId(month, year),
+                setCalendar: (value: TCalendar) => setCalendar(value)
             }} />
         </Modal>
     )

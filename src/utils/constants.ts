@@ -28,4 +28,10 @@ export enum CODE {
     METHOD_NOT_ALLOW = 405
 }
 
+export const today = new Date()
+export const currentMonth = today.getMonth()
+export const currentYear = today.getFullYear()
+export const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+export const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
 export const API_URL = process.env.NEXT_PUBLIC_API_URL

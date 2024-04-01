@@ -2,6 +2,7 @@ import { Article, Div, Space, Title, Text, Image } from 'components'
 import { COLOR } from 'utils/constants'
 import { type FC } from 'react'
 import { GoDeviceCameraVideo } from "react-icons/go";
+import styles from './index.module.scss'
 
 interface IProps {
     title: string;
@@ -40,8 +41,7 @@ const Card: FC<IProps> = ({
     return (
         <Article
             flex direct='column' gap='16px'
-            className='p-4 rounded'
-            style={{ border: '2px solid red' }}
+            className={styles.root}
         >
             {Appointment}
             {User}

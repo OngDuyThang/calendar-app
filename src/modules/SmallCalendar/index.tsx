@@ -1,88 +1,64 @@
 import { Article, Button, Div, Section, Space, Text, Title } from 'components'
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
-import { COLOR } from 'utils/constants'
+import { COLOR, currentMonth, currentYear, months, today } from 'utils/constants'
 import { CSSProperties, useState, type FC, useEffect } from 'react'
 import Card from './Card'
 import styles from './index.module.scss'
 import Calendar from './Calendar';
 import { TAppointment } from 'types/appointment';
-import { dateId } from 'utils/helpers';
+import { TGlobalMonthYear } from 'modules/CalendarApp';
 
-const today = new Date()
-const currentMonth = today.getMonth()
-const currentYear = today.getFullYear()
-const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-
+const iconCss: CSSProperties = {
+    cursor: 'pointer',
+    color: COLOR.DARK_BLUE
+}
 interface IProps {
-    globalMonth: number;
-    globalYear: number
+    globalMonthYear: TGlobalMonthYear;
+    selected: string;
+    setSelected: (value: string) => void
 }
 
 const SmallCalendar: FC<IProps> = ({
-    globalMonth,
-    globalYear
+    globalMonthYear,
+    selected,
+    setSelected
 }) => {
-    const iconCss: CSSProperties = {
-        cursor: 'pointer',
-        color: COLOR.DARK_BLUE
-    }
-    const [day, setDay] = useState<number>(today.getDate())
-    const [month, setMonth] = useState<number>(globalMonth)
-    const [year, setYear] = useState<number>(globalYear)
+    const [month, setMonth] = useState<number>(globalMonthYear.month)
+    const [year, setYear] = useState<number>(globalMonthYear.year)
     const [appointments, setAppointments] = useState<TAppointment[]>([])
-    const isToday = dateId(day, month, year) === dateId(today.getDate(), currentMonth, currentYear)
 
-    const resetDay = (month: number, year: number) => {
-        if (month == currentMonth && year == currentYear) {
-            setDay(today.getDate())
-        } else {
-            setDay(0)
-        }
-    }
+    const selectedDay = parseInt(selected.split('-')[0])
+    const selectedMonth = parseInt(selected.split('-')[1]) - 1
+    const isToday = selectedDay == today.getDate() && month == currentMonth && year == currentYear
 
     useEffect(() => {
-        resetDay(globalMonth, globalYear)
-        setMonth(globalMonth)
-        setYear(globalYear)
-    }, [globalMonth, globalYear])
+        setMonth(globalMonthYear.month)
+        setYear(globalMonthYear.year)
+    }, [globalMonthYear])
 
     const next = () => {
         setMonth(month => {
             if (month < 11) {
                 month += 1
-                resetDay(month, year)
             } else {
                 month = 0
-                setYear(year => {
-                    year += 1
-                    resetDay(month, year)
-                    return year
-                })
+                setYear(year + 1)
             }
             return month
         })
-        setAppointments([])
     }
 
     const prev = () => {
         setMonth(month => {
             if (month > 0) {
                 month -= 1
-                resetDay(month, year)
             } else {
                 month = 11
-                setYear(year => {
-                    year -= 1
-                    resetDay(month, year)
-                    return year
-                })
+                setYear(year - 1)
             }
             return month
         })
-        setAppointments([])
     }
-
-    useEffect(() => console.log('month: ' + month, 'year: ' + year), [month, year])
 
     const CalendarRender = (
         <Article flex direct='column' align='center' gap='16px' className={styles.calendar} >
@@ -102,8 +78,7 @@ const SmallCalendar: FC<IProps> = ({
             <Calendar {...{
                 month,
                 year,
-                day,
-                setDay: (value: number) => setDay(value),
+                setSelected: (value: string) => setSelected(value),
                 setAppointments: (value: TAppointment[]) => setAppointments(value)
             }} />
         </Article>
@@ -122,7 +97,7 @@ const SmallCalendar: FC<IProps> = ({
                         Upcoming Events
                     </Title>
                     <Text fontSize='1rem' fontWeight={500} color={COLOR.GREY_TEXT}>
-                        {isToday && 'Today, '} {day ? `${day} ${months[month]}` : null}
+                        {isToday && 'Today, '} {selectedDay ? `${selectedDay} ${months[selectedMonth]}` : null}
                     </Text>
                 </Space>
                 <Button>

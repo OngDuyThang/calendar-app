@@ -5,15 +5,20 @@ import { Time } from './time'
 import { Client } from './client';
 import { CreateAppointmentDto } from 'types/appointment';
 import { createAppointment } from 'api/appointment';
+import { TCalendar } from 'types/calendar';
+import { getCalendarById } from 'api/calendar';
+import { generateCalendarId } from 'utils/helpers';
 
 interface IProps {
     dateId: string;
-    calendarId: string
+    calendarId: string;
+    setCalendar: (value: TCalendar) => void
 }
 
 const AppointmentForm: FC<IProps> = ({
     dateId,
-    calendarId
+    calendarId,
+    setCalendar
 }) => {
     const form = useRef<HTMLFormElement>(null)
 
@@ -57,8 +62,19 @@ const AppointmentForm: FC<IProps> = ({
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const request = formatFormData() as CreateAppointmentDto
-        const data = await createAppointment(request)
-        console.log(data)
+        const { statusCode } = await createAppointment(request)
+
+        if (statusCode === 201) {
+            const month = parseInt(dateId.split('-')[1]) - 1
+            const year = parseInt(dateId.split('-')[2])
+
+            const data = await getCalendarById(generateCalendarId(month, year))
+            if (data.data) {
+                setCalendar(data.data)
+            }
+        }
+
+        form.current?.reset()
     }
 
     return (

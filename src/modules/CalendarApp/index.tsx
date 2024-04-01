@@ -2,24 +2,28 @@ import { Div } from 'components'
 import { LargeCalendar, SmallCalendar } from 'modules'
 import { useState, type FC } from 'react'
 import styles from './index.module.scss'
+import { currentMonth, currentYear } from 'utils/constants'
 
-const today = new Date()
-const currentMonth = today.getMonth()
-const currentYear = today.getFullYear()
+export type TGlobalMonthYear = Record<'month' | 'year', number>
 
 const Calendar: FC = () => {
-    const [month, setMonth] = useState<number>(currentMonth)
-    const [year, setYear] = useState<number>(currentYear)
+    const [selected, setSelected] = useState<string>('')
+    const [global, setGlobal] = useState<TGlobalMonthYear>({
+        month: currentMonth,
+        year: currentYear
+    })
 
     return (
         <Div className={styles.app} flex gap='16px'>
             <SmallCalendar {...{
-                globalMonth: month,
-                globalYear: year
+                globalMonthYear: global,
+                selected,
+                setSelected: (value: string) => setSelected(value),
             }} />
             <LargeCalendar {...{
-                setGlobalMonth: (value: number) => setMonth(value),
-                setGlobalYear: (value: number) => setYear(value)
+                globalMonthYear: global,
+                setGlobalMonthYear: (value: TGlobalMonthYear) => setGlobal(value),
+                selected
             }} />
         </Div>
     )

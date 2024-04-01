@@ -1,24 +1,22 @@
 import { Button, Div, Section, Space, Text } from 'components'
-import { CSSProperties, useState, type FC } from 'react'
+import { CSSProperties, useState, type FC, useEffect } from 'react'
 import styles from './index.module.scss'
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa'
-import { COLOR } from 'utils/constants'
+import { COLOR, currentMonth, currentYear, months } from 'utils/constants'
 import Calendar from './Calendar'
-
-const today = new Date()
-const currentMonth = today.getMonth()
-const currentYear = today.getFullYear()
-const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+import { TGlobalMonthYear } from 'modules/CalendarApp'
+import Months from './Months'
 
 interface IProps {
-    setGlobalMonth: (value: number) => void;
-    setGlobalYear: (value: number) => void
+    globalMonthYear: TGlobalMonthYear;
+    setGlobalMonthYear: (value: TGlobalMonthYear) => void;
+    selected: string
 }
 
 const LargeCalendar: FC<IProps> = ({
-    setGlobalMonth,
-    setGlobalYear
+    globalMonthYear,
+    setGlobalMonthYear,
+    selected
 }) => {
     const iconCss: CSSProperties = {
         cursor: 'pointer',
@@ -27,17 +25,27 @@ const LargeCalendar: FC<IProps> = ({
     const [month, setMonth] = useState<number>(currentMonth)
     const [year, setYear] = useState<number>(currentYear)
 
+    useEffect(() => {
+        setMonth(globalMonthYear.month)
+        setYear(globalMonthYear.year)
+    }, [globalMonthYear])
+
     const next = () => {
         setMonth(month => {
             if (month < 11) {
                 month += 1
-                setGlobalMonth(month)
+                setGlobalMonthYear({
+                    month,
+                    year
+                })
             } else {
                 month = 0
                 setYear(year => {
                     year += 1
-                    setGlobalMonth(month)
-                    setGlobalYear(year)
+                    setGlobalMonthYear({
+                        month,
+                        year
+                    })
                     return year
                 })
             }
@@ -49,13 +57,18 @@ const LargeCalendar: FC<IProps> = ({
         setMonth(month => {
             if (month > 0) {
                 month -= 1
-                setGlobalMonth(month)
+                setGlobalMonthYear({
+                    month,
+                    year
+                })
             } else {
                 month = 11
                 setYear(year => {
                     year -= 1
-                    setGlobalMonth(month)
-                    setGlobalYear(year)
+                    setGlobalMonthYear({
+                        month,
+                        year
+                    })
                     return year
                 })
             }
@@ -64,12 +77,17 @@ const LargeCalendar: FC<IProps> = ({
     }
 
     const getToday = () => {
-        setGlobalMonth(currentMonth)
-        setGlobalYear(currentYear)
+        setGlobalMonthYear({
+            month: currentMonth,
+            year: currentYear
+        })
+
+        setMonth(currentMonth)
+        setYear(currentYear)
     }
 
     const Header = (
-        <Div flex justify='between' className={styles.header}>
+        <Div flex justify='between' align='center' className={styles.header}>
             <Space size={16} center>
                 <Button
                     variant='outline'
@@ -89,9 +107,10 @@ const LargeCalendar: FC<IProps> = ({
                     {months[month]} {year}
                 </Text>
             </Space>
-            <Button variant='outline'>
-                Month
-            </Button>
+            <Months {...{
+                globalMonthYear,
+                setGlobalMonthYear: (value: TGlobalMonthYear) => setGlobalMonthYear(value)
+            }} />
         </Div>
     )
 
@@ -101,7 +120,7 @@ const LargeCalendar: FC<IProps> = ({
             className={styles.root}
         >
             {Header}
-            <Calendar {...{ month, year }} />
+            <Calendar {...{ month, year, selected }} />
         </Section>
     )
 }

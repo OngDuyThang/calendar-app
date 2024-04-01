@@ -1,10 +1,10 @@
-export const dateId = (
+export const generateDateId = (
     day: number,
     month: number,
     year: number
 ) => `${day}-${month + 1}-${year}`
 
-export const calendarId = (
+export const generateCalendarId = (
     month: number,
     year: number
 ) => `${month + 1}-${year}`

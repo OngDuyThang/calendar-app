@@ -1,4 +1,4 @@
-import { dateId } from 'utils/helpers'
+import { generateDateId } from 'utils/helpers'
 import { TCalendarCell } from 'types/calendar'
 
 export const createCalendar = (month: number, year: number) => {
@@ -18,18 +18,18 @@ export const createCalendar = (month: number, year: number) => {
                 const date = new Date(year, month, dayNth)
 
                 day = date.getDate()
-                id = dateId(day, date.getMonth(), date.getFullYear())
+                id = generateDateId(day, date.getMonth(), date.getFullYear())
                 inMonth = false
             } else {
                 if (count < lastDay) {
                     day = count += 1
-                    id = dateId(day, month, year)
+                    id = generateDateId(day, month, year)
                 } else {
                     count += 1
                     const date = new Date(year, month, count)
 
                     day = date.getDate()
-                    id = dateId(day, date.getMonth(), date.getFullYear())
+                    id = generateDateId(day, date.getMonth(), date.getFullYear())
                     inMonth = false
                 }
             }
