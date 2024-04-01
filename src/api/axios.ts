@@ -1,9 +1,9 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 import { ApiResponseDto } from "types/api";
-import { API_URL, CODE, MESSAGE } from "utils/constants";
+import { CODE, MESSAGE } from "utils/constants";
 
 export const axiosInstance = axios.create({
-    baseURL: API_URL
+    baseURL: '/api/'
 });
 
 axiosInstance.interceptors.request.use(
